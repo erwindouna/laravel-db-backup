@@ -1,0 +1,13 @@
+{
+    "name": "edouna/laravel-db-backup",
+    "authors": [
+        {
+            "name": "Erwin Douna",
+            "email": "e.douna@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require-dev": {
+        "laravel-framework": "^6.0"
+    }
+}
