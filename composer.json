@@ -12,6 +12,7 @@
         "symfony/process": "^5.0"
     },
     "require-dev": {
+        "mockery/mockery": "^1.4@dev"
     },
     "autoload": {
         "psr-4": {
