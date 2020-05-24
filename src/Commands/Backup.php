@@ -23,7 +23,8 @@ class Backup extends Command
     protected $description = 'Attempts to run a database back-up procedure.';
 
     /**
-     * Store the main database class
+     * Store the main database class.
+     *
      * @var Database
      */
     protected $database;
@@ -55,15 +56,18 @@ class Backup extends Command
         // Run the back-up
         if (false === $this->database->getRealDatabase()->backup()) {
             $this->error('Error while performing back-up. Please find the error log for further details.');
+
             return 0;
         }
 
         if (false === $this->database->createArchiveFile()) {
             $this->error('Error while creating the archive file. Please find the error log for further details.');
+
             return 0;
         }
 
         $this->line(sprintf('Finished back-up procedure in %s second(s).', $endTime));
+
         return 1;
     }
 }

@@ -16,12 +16,12 @@ class LaravelDBBackupProvider extends ServiceProvider
     public function register()
     {
         // Register the config
-        $this->mergeConfigFrom(__DIR__ . '/../config/db-backup.php', 'db-backup');
+        $this->mergeConfigFrom(__DIR__.'/../config/db-backup.php', 'db-backup');
 
         // Register the commands
         $this->commands([
             Backup::class,
-            Restore::class
+            Restore::class,
         ]);
     }
 
@@ -34,8 +34,7 @@ class LaravelDBBackupProvider extends ServiceProvider
     {
         // Initialize the config
         $this->publishes([
-            __DIR__ . '/../config/db-backup.php' => config_path('db-backup.php')
+            __DIR__.'/../config/db-backup.php' => config_path('db-backup.php'),
         ], 'config');
-
     }
 }

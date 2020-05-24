@@ -10,7 +10,6 @@ use Symfony\Component\Process\Process;
 
 class Database
 {
-
     /**
      * @var mixed
      */
@@ -33,7 +32,7 @@ class Database
     public function __construct(Storage $storage)
     {
         $this->database = Config::get('database.default');
-        $this->realDatabase = Config::get('database.connections.' . $this->database);
+        $this->realDatabase = Config::get('database.connections.'.$this->database);
         $this->storage = $storage;
         $this->storageFolder = $storage->getStorageFolder();
 
@@ -86,10 +85,10 @@ class Database
         $processFailure = false;
         $process->run(function ($type, $buffer) use ($processFailure): bool {
             if (Process::OUT === $type) {
-                Log::debug('gzip buffer: ' . $buffer);
+                Log::debug('gzip buffer: '.$buffer);
             }
             if (Process::ERR === $type) {
-                Log::error('Error whilst performing zip action. Output of buffer: ' . $buffer);
+                Log::error('Error whilst performing zip action. Output of buffer: '.$buffer);
                 $processFailure = true;
             }
 
@@ -101,34 +100,37 @@ class Database
         }
 
         Log::debug('Finished creating an archive file.');
+
         return true;
     }
 
     /**
      * @param array $database
+     *
      * @return MySQLDatabase
      */
     protected function buildMySQL(array $database): MySQLDatabase
     {
         $this->database = new MySQLDatabase(
-            $database['database']
-            , $database['username']
-            , $database['password']
-            , $database['host']
-            , $database['port']
-            , $this->storageFolder
+            $database['database'],
+            $database['username'],
+            $database['password'],
+            $database['host'],
+            $database['port'],
+            $this->storageFolder
         );
 
         // Generate a unique filename
-        $this->backupFilename = $this->storageFolder . $database['driver'] . '-' . microtime(true) . '.' . $this->database->getFileExtension();
+        $this->backupFilename = $this->storageFolder.$database['driver'].'-'.microtime(true).'.'.$this->database->getFileExtension();
 
         return $this->database;
     }
 
     /**
-     * Create an SQLite database instance
+     * Create an SQLite database instance.
      *
      * @param array $database
+     *
      * @return Databases\SQLiteDatabase
      */
     protected function buildSQLite(array $database): SQLiteDatabase
@@ -136,7 +138,7 @@ class Database
         $this->database = new SQLiteDatabase($database['database']);
 
         // Generate a unique filename
-        $this->backupFilename = $this->storagePath . 'sqlite-' . microtime(true) . '.' . $this->database->getFileExtension();
+        $this->backupFilename = $this->storagePath.'sqlite-'.microtime(true).'.'.$this->database->getFileExtension();
 
         return $this->database;
     }
