@@ -44,12 +44,26 @@ class Backup extends Command
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
         Log::info('Starting back-up procedure.');
-        $this->comment('Starting back-up procedure.');
+        $this->line('Starting back-up procedure.');
         $startTime = microtime(true);
 
+        $endTime = round(microtime(true) - $startTime, 2);
 
+        // Run the back-up
+        if (false === $this->database->getRealDatabase()->backup()) {
+            $this->error('Error while performing back-up. Please find the error log for further details.');
+            return 0;
+        }
+
+        if (false === $this->database->createArchiveFile()) {
+            $this->error('Error while creating the archive file. Please find the error log for further details.');
+            return 0;
+        }
+
+        $this->line(sprintf('Finished back-up procedure in %s second(s).', $endTime));
+        return 1;
     }
 }
