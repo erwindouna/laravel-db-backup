@@ -4,7 +4,6 @@ namespace EDouna\LaravelDBBackup\Databases;
 
 class SQLiteDatabase implements DatabaseInterface
 {
-
     public function backup()
     {
         // TODO: Implement backup() method.
@@ -16,7 +15,7 @@ class SQLiteDatabase implements DatabaseInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFileExtension()
     {
