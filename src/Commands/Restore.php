@@ -25,7 +25,8 @@ class Restore extends Command
     protected $description = 'Retrieve a list of available back-ups of the current database driver and provides a choice list.';
 
     /**
-     * Store the main database class
+     * Store the main database class.
+     *
      * @var Database
      */
     protected $database;
@@ -55,6 +56,7 @@ class Restore extends Command
         $files = $this->getMostRecentBackups();
         if (null === $files) {
             $this->error(sprintf('No back-up files found for driver %s. No need to continue the restore procedure.', $this->databaseMain->getDatabase()->getDatabaseIdentifier()));
+
             return 0;
         }
 
@@ -73,18 +75,21 @@ class Restore extends Command
         if (false === $decompressedFile) {
             Log::error('Error in decompressing the archive. Please see the log files for further details.');
             $this->error('Error in decompressing the archive. Please see the log files for further details.');
+
             return 0;
         }
 
         if (false === $this->database->getRealDatabase()->restore($decompressedFile)) {
             Log::error('Error in restoring the database archive. Please see the log files for further details.');
             $this->error('Error in restoring the database archive. Please see the log files for further details.');
+
             return 0;
         }
 
         if (false === $this->database->getStorage()->clearTmpFile($decompressedFile)) {
             Log::error('Error in cleaning the temp back-up file. Please see the log files for further details.');
             $this->error('Error in cleaning the temp back-up file. Please see the log files for further details.');
+
             return 0;
         }
 
@@ -101,10 +106,12 @@ class Restore extends Command
     protected function getMostRecentBackups(): ?array
     {
         Log::debug('Searching for archived back-up files.');
+
         try {
             $files = File::files($this->database->getStorageFolder());
         } catch (Exception $e) {
             Log::error(sprintf('Unable to reach storage path. Exception thrown: %s', $e->getMessage()));
+
             return null;
         }
 
@@ -115,6 +122,7 @@ class Restore extends Command
 
         if (null === $filesFilter || empty($filesFilter)) {
             Log::error(sprintf('No back-up files found for driver %s. No need to continue the restore procedure.', $this->database->getRealDatabase()->getDatabaseIdentifier()));
+
             return null;
         }
 

@@ -12,5 +12,4 @@ interface DatabaseInterface
      * @return string
      */
     public function getFileExtension();
-
 }
