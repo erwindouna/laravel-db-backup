@@ -1,4 +1,4 @@
-laravel-backup [![Build Status](https://travis-ci.org/edouna/laravel-db-backup.svg?branch=master)](https://travis-ci.org/edouna/laravel-db-backup) ![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/EDOUNA/laravel-db-backup/badges/quality-score.png?b=develop)
+laravel-db-backup [![Build Status](https://travis-ci.org/edouna/laravel-db-backup.svg?branch=master)](https://travis-ci.org/edouna/laravel-db-backup) ![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/EDOUNA/laravel-db-backup/badges/quality-score.png?b=develop)
 ==============
 
 Personal Laravel 6.x back-up & restore tool
