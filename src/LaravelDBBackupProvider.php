@@ -3,6 +3,7 @@
 namespace EDouna\LaravelDBBackup;
 
 use EDouna\LaravelDBBackup\Commands\Backup;
+use EDouna\LaravelDBBackup\Commands\Restore;
 use Illuminate\Support\ServiceProvider;
 
 class LaravelDBBackupProvider extends ServiceProvider
@@ -20,6 +21,7 @@ class LaravelDBBackupProvider extends ServiceProvider
         // Register the commands
         $this->commands([
             Backup::class,
+            Restore::class
         ]);
     }
 

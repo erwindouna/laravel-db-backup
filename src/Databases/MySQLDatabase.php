@@ -58,9 +58,8 @@ class MySQLDatabase implements DatabaseInterface
         Log::debug('Start creating MySQL dump file.');
         $this->createBackupFilename();
 
-        $storageFolder = '"' . addcslashes($this->storageFolder, '\\"') . '"';
+        //$storageFilepath = '"' . addcslashes($this->storageFolder, '\\"') . '"';
         $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $this->backupFilename);
-        //dd($command);
 
         $process = Process::fromShellCommandline($command, null, null, null, 9999.00);
 

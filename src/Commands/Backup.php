@@ -31,7 +31,7 @@ class Backup extends Command
     /**
      * Create a new command instance.
      *
-     * @return void
+     * @param Database $database
      */
     public function __construct(Database $database)
     {

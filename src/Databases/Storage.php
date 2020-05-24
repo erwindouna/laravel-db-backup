@@ -6,6 +6,7 @@ use EDouna\LaravelDBBackup\Exceptions\CannotCreateStorageFolderException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Process;
 
 
 class Storage
@@ -52,6 +53,77 @@ class Storage
         }
 
         Log::debug('Finished checking storage path.');
+        return true;
+    }
+
+    /**
+     * @param string $backupFile
+     * @return string|string[]|null
+     */
+    public function decompressBackupFile(string $backupFile, Database $database)
+    {
+        Log::debug('Decompressing archive file.');
+        $workableFile = $this->createTmpFile($backupFile, $database);
+
+        if (null === $workableFile) {
+            return null;
+        }
+
+        $process = new Process(['gzip', '-d', $workableFile]);
+        $process->run(function ($type, $buffer): bool {
+            if (Process::OUT === $type) {
+                Log::debug('gzip buffer: ' . $buffer);
+            }
+            if (Process::ERR === $type) {
+                Log::error('Error whilst performing zip action. Output of buffer: ' . $buffer);
+                return false;
+            }
+
+            return true;
+        });
+
+        Log::debug('Finished decompressing archive file.');
+
+        return str_replace('.gz', '', $workableFile);
+    }
+
+    /**
+     * @param string $backupFile
+     * @return string|null
+     */
+    protected function createTmpFile(string $backupFile, Database $database): ?string
+    {
+        Log::debug('Creating temp back-up file to not corrupt the archives.');
+        $tmpFilename = 'tmp.' . microtime(true) . '.' . $database->getRealDatabase()->getFileExtension() . '.gz';
+        $filePath = $this->storagePath . $tmpFilename;
+
+        try {
+            File::copy($backupFile, $filePath);
+        } catch (Exception $e) {
+            Log::error('Could not create temporary archive file. Exception throw: ' . $e->getMessage());
+            return null;
+        }
+
+        Log::debug('Finished creating temp back-up file.');
+        return $filePath;
+    }
+
+    /**
+     * @param string $backupFile
+     * @return bool
+     */
+    public function clearTmPFile(string $backupFile): bool
+    {
+        Log::debug('Cleaning up temp back-up file.');
+
+        try {
+            File::delete($backupFile);
+        } catch (Exception $e) {
+            Log::error(sprintf('Could not clean up temp back-up file. Exception thrown: %s', $e->getMessage()));
+            return false;
+        }
+
+        Log::debug('Finished cleaning up temp back-up file.');
         return true;
     }
 

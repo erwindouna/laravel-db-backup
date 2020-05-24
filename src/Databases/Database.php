@@ -21,6 +21,8 @@ class Database
      */
     protected $realDatabase;
 
+    protected $storage;
+
     /**
      * @var array
      */
@@ -32,6 +34,7 @@ class Database
     {
         $this->database = Config::get('database.default');
         $this->realDatabase = Config::get('database.connections.' . $this->database);
+        $this->storage = $storage;
         $this->storageFolder = $storage->getStorageFolder();
 
         // Check if the current database driver is supported
@@ -51,12 +54,25 @@ class Database
         }
     }
 
+    public function getStorage(): object
+    {
+        return $this->storage;
+    }
+
     /**
      * @return object
      */
     public function getRealDatabase(): object
     {
         return $this->realDatabase;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStorageFolder(): string
+    {
+        return $this->storageFolder;
     }
 
     /**
