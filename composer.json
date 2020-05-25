@@ -12,11 +12,18 @@
         "symfony/process": "^5.0"
     },
     "require-dev": {
-        "mockery/mockery": "^1.4@dev"
+        "orchestra/testbench": "^6.0@dev",
+        "phpunit/phpunit": "^9.2@dev",
+        "mockery/mockery": "dev-master"
     },
     "autoload": {
         "psr-4": {
             "EDouna\\LaravelDBBackup\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EDouna\\LaravelDBBackup\\Test\\": "tests/"
         }
     }
 }
