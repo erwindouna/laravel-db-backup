@@ -10,8 +10,7 @@ interface DatabaseInterface
 
     public function restore(string $backupFile);
 
-    /**
-     * @return string
-     */
     public function getFileExtension();
+
+    public function getDatabaseIdentifier();
 }

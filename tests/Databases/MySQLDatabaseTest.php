@@ -34,7 +34,7 @@ class MySQLDatabaseTest extends TestCase
     public function testDumpSuccess()
     {
         $this->processHandlerMock->method('run')->willReturn(true);
- 
+
         $this->assertTrue($this->database->backup());
     }
 
@@ -48,5 +48,19 @@ class MySQLDatabaseTest extends TestCase
         $this->assertFalse($this->database->backup());
     }
 
+    /**
+     * @test
+     */
+    public function testDatabaseIdentifier()
+    {
+        $this->assertEquals($this->database->getDatabaseIdentifier(), 'mysql');
+    }
 
+    /**
+     * @test
+     */
+    public function testFileExtension()
+    {
+        $this->assertEquals($this->database->getFileExtension(), 'sql');
+    }
 }
