@@ -2,11 +2,9 @@
 
 namespace EDouna\LaravelDBBackup\Databases;
 
-use EDouna\LaravelDBBackup\Exceptions\DatabaseDriverNotSupportedException;
+use EDouna\LaravelDBBackup\ProcessHandler;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Log;
 use SQLiteDatabase;
-use Symfony\Component\Process\Process;
 
 class Database
 {
@@ -18,9 +16,11 @@ class Database
     /**
      * @var array
      */
-    protected $realDatabase;
+    public $realDatabase;
 
-    protected $storage;
+    protected $processHandler;
+
+    public $backupFilename;
 
     /**
      * @var array
@@ -29,15 +29,13 @@ class Database
 
     protected $storageFolder;
 
-    public function __construct(Storage $storage)
+    public function __construct()
     {
         $this->database = Config::get('database.default');
-        $this->realDatabase = Config::get('database.connections.'.$this->database);
-        $this->storage = $storage;
-        $this->storageFolder = $storage->getStorageFolder();
+        $this->realDatabase = Config::get('database.connections.' . $this->database);
+        $this->processHandler = new ProcessHandler();
 
         // Check if the current database driver is supported
-        $this->initSupportedDatabaseDrivers();
         $this->buildDatabaseClass();
     }
 
@@ -53,15 +51,23 @@ class Database
         }
     }
 
+    /**
+     * @return bool
+     */
+    public function isDatabaseSupported(): bool
+    {
+        return (in_array($this->realDatabase->getDatabaseIdentifier(), $this->supportedDatabaseDrivers)) ? true : false;
+    }
+
     public function getStorage(): object
     {
         return $this->storage;
     }
 
     /**
-     * @return array
+     * @return object
      */
-    public function getRealDatabase(): array
+    public function getRealDatabase(): object
     {
         return $this->realDatabase;
     }
@@ -75,33 +81,24 @@ class Database
     }
 
     /**
-     * @return bool
+     * Used to generically generate files names in one class
+     *
+     * @param string $databaseIdentifier
+     * @param string $databaseFileExtension
+     * @return string
      */
-    public function createArchiveFile(): bool
+    public function generateBackupFilename(string $databaseIdentifier, string $databaseFileExtension): string
     {
-        Log::debug('Trying to start creating an archive file');
-        $process = new Process(['gzip', '-9', $this->getRealDatabase()->getBackupFilename()]);
+        dd($this);
+        return $this->backupFilename = $this->storage->getStorageFolder() . $databaseIdentifier . '-' . time() . '.' . $databaseFileExtension;
+    }
 
-        $processFailure = false;
-        $process->run(function ($type, $buffer) use ($processFailure): bool {
-            if (Process::OUT === $type) {
-                Log::debug('gzip buffer: '.$buffer);
-            }
-            if (Process::ERR === $type) {
-                Log::error('Error whilst performing zip action. Output of buffer: '.$buffer);
-                $processFailure = true;
-            }
-
-            return $processFailure;
-        });
-
-        if (true === $processFailure) {
-            return false;
-        }
-
-        Log::debug('Finished creating an archive file.');
-
-        return true;
+    /**
+     * @return string
+     */
+    public function getBackupFilename(): string
+    {
+        return $this->backupFilename;
     }
 
     /**
@@ -117,11 +114,10 @@ class Database
             $database['password'],
             $database['host'],
             $database['port'],
-            $this->storageFolder
+            $this->processHandler,
         );
 
-        // Generate a unique filename
-        $this->backupFilename = $this->storageFolder.$database['driver'].'-'.microtime(true).'.'.$this->database->getFileExtension();
+        $this->generateBackupFilename($this->database->getDatabaseIdentifier(), $this->database->getFileExtension());
 
         return $this->database;
     }
@@ -137,19 +133,9 @@ class Database
     {
         $this->database = new SQLiteDatabase($database['database']);
 
-        // Generate a unique filename
-        $this->backupFilename = $this->storagePath.'sqlite-'.microtime(true).'.'.$this->database->getFileExtension();
+        $this->generateBackupFilename();
 
         return $this->database;
     }
 
-    /**
-     * @throws DatabaseDriverNotSupportedException
-     */
-    protected function initSupportedDatabaseDrivers(): void
-    {
-        if (!in_array($this->realDatabase['driver'], $this->supportedDatabaseDrivers)) {
-            throw DatabaseDriverNotSupportedException::message($this->realDatabase['driver']);
-        }
-    }
 }

@@ -7,11 +7,10 @@ use EDouna\LaravelDBBackup\Databases\MySQLDatabase;
 use Mockery as m;
 use Orchestra\Testbench\TestCase;
 
-use function PHPUnit\Framework\assertEquals;
-
 class MySQLDatabaseTest extends TestCase
 {
     protected $database;
+    protected $storageMock;
     protected $processHandlerMock;
     protected $testBackupFile;
 
@@ -19,8 +18,10 @@ class MySQLDatabaseTest extends TestCase
     {
         parent::setUp();
 
+        $this->storageMock = $this->getMockBuilder('EDouna\LaravelDBBackup\Databases\Storage')->getMock();
+        $this->storageMock = m::mock('EDouna\LaravelDBBackup\Databases\Storage');
         $this->processHandlerMock = $this->getMockBuilder('EDouna\LaravelDBBackup\ProcessHandler')->getMock();
-        $this->database = new MySQLDatabase('testDatabase', 'testUser', 'testPassword', 'testHost', '3306', storage_path('db-backups'), $this->processHandlerMock);
+        $this->database = new MySQLDatabase('testDatabase', 'testUser', 'testPassword', 'testHost', '3306', $this->processHandlerMock, $this->storageMock);
         $this->testBackupFile = 'testBackupFile.sql';
     }
 
@@ -50,7 +51,7 @@ class MySQLDatabaseTest extends TestCase
         $this->assertFalse($this->database->backup());
     }
 
-     /**
+    /**
      * @test
      */
     public function testRestoreSuccess()
@@ -60,7 +61,7 @@ class MySQLDatabaseTest extends TestCase
         $this->assertTrue($this->database->restore($this->testBackupFile));
     }
 
-     /**
+    /**
      * @test
      */
     public function testRestoreFailure()

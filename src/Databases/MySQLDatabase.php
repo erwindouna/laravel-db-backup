@@ -4,9 +4,8 @@ namespace EDouna\LaravelDBBackup\Databases;
 
 use EDouna\LaravelDBBackup\ProcessHandler;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\Console\Helper\ProcessHelper;
 
-class MySQLDatabase implements DatabaseInterface
+class MySQLDatabase extends Database implements DatabaseInterface
 {
     protected $database;
     protected $user;
@@ -14,10 +13,10 @@ class MySQLDatabase implements DatabaseInterface
     protected $host;
     protected $port;
     protected $storageFolder;
-    protected $backupFilename;
     protected $fileExtension;
     protected $databaseIdentifier;
     protected $processHandler;
+    protected $storage;
 
     /**
      * MySQLDatabase constructor.
@@ -27,9 +26,10 @@ class MySQLDatabase implements DatabaseInterface
      * @param string $password
      * @param string $host
      * @param string $port
-     * @param string $storageFolder
+     * @param ProcessHandler $processHandler
+     * @param Storage $storage
      */
-    public function __construct(string $database, string $user, string $password, string $host, string $port, string $storageFolder, ProcessHandler $processHandler)
+    public function __construct(string $database, string $user, string $password, string $host, string $port, ProcessHandler $processHandler)
     {
         Log::debug('Constructing MySQL database class.');
         $this->database = $database;
@@ -38,20 +38,10 @@ class MySQLDatabase implements DatabaseInterface
         $this->host = $host;
         $this->port = $port;
 
-        $this->storageFolder = $storageFolder;
-
         $this->fileExtension = 'sql';
         $this->databaseIdentifier = 'mysql';
 
         $this->processHandler = $processHandler;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBackupFilename(): string
-    {
-        return $this->backupFilename;
     }
 
     /**
@@ -61,10 +51,8 @@ class MySQLDatabase implements DatabaseInterface
     public function backup(): bool
     {
         Log::debug('Start creating MySQL dump file.');
-        $this->createBackupFilename();
-
-        //$storageFilepath = '"' . addcslashes($this->storageFolder, '\\"') . '"';
-        $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $this->backupFilename);
+        $backupFilename = parent::generateBackupFilename($this->getDatabaseIdentifier(), $this->getFileExtension());
+        $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $backupFilename);
 
         if (false === $this->processHandler->run($command)) {
             return false;
@@ -73,14 +61,6 @@ class MySQLDatabase implements DatabaseInterface
         Log::debug('Finished running MySQL dump.');
 
         return true;
-    }
-
-    /**
-     * Generate a unique back-up filename.
-     */
-    protected function createBackupFilename(): void
-    {
-        $this->backupFilename = $this->storageFolder . $this->getDatabaseIdentifier() . '-' . microtime(true) . '.' . $this->getFileExtension();
     }
 
     /**
@@ -110,7 +90,6 @@ class MySQLDatabase implements DatabaseInterface
     }
 
     /**
-     * @param ProcessHandler $processHandler
      * @param string $backupFile
      * @return bool
      */
@@ -121,7 +100,7 @@ class MySQLDatabase implements DatabaseInterface
         $startTimeImport = microtime(true);
         $backupFile = '"' . addcslashes($backupFile, '\\"') . '"';
         $command = sprintf('mysql %s %s < %s', $this->getCredentials(), $this->database, $backupFile);
-        
+
         if (false === $this->processHandler->run($command)) {
             return false;
         }

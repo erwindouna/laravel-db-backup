@@ -6,15 +6,24 @@ use Orchestra\Testbench\TestCase;
 
 class DatabaseTest extends TestCase
 {
-    protected $storage;
-    protected $processHandler;
+    protected $storageMock;
+    protected $processHandlerMock;
     protected $database;
 
+    /**
+     * @environment-setup useMySQlConnection
+     */
     public function setUp(): void
     {
-        $this->storage = $this->getMockBuilder('EDouna\LaravelDBBackup\Database\Storage')->getMock();
-        $this->processHandlerMock = $this->getMockBuilder('EDouna\LaravelDBBackup\ProcessHandler')->getMock();
+        parent::setUp();
+        $this->database = new Database();
+    }
 
-       $this->database = new Database($this->storage);
+    /**
+     * @test
+     */
+    public function testBuildDatabaseClassMySQL()
+    {
+        $this->assertEquals($this->database->getRealDatabase()->getDatabaseIdentifier(), 'mysql');
     }
 }

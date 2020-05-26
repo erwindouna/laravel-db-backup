@@ -2,8 +2,6 @@
 
 namespace EDouna\LaravelDBBackup\Databases;
 
-use EDouna\LaravelDBBackup\ProcessHandler;
-
 interface DatabaseInterface
 {
     public function backup();
