@@ -12,13 +12,14 @@ use function PHPUnit\Framework\assertEquals;
 class MySQLDatabaseTest extends TestCase
 {
     protected $database;
-    protected $console;
+    protected $processHandlerMock;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->database = new MySQLDatabase('testDatabase', 'testUser', 'testPassword', 'testHost', '3306', storage_path('db-backups'));
+        $this->processHandlerMock = $this->getMockBuilder('EDouna\LaravelDBBackup\ProcessHandler')->getMock();
+        $this->database = new MySQLDatabase('testDatabase', 'testUser', 'testPassword', 'testHost', '3306', storage_path('db-backups'), $this->processHandlerMock);
     }
 
     public function tearDown(): void
@@ -32,9 +33,8 @@ class MySQLDatabaseTest extends TestCase
      */
     public function testDumpSuccess()
     {
-        $processHandler = m::mock('EDouna\LaravelDBBackup\ProcessHandler');
-        $processHandler->shouldReceive('run')->andReturn(true);
-
+        $this->processHandlerMock->method('run')->willReturn(true);
+ 
         $this->assertTrue($this->database->backup());
     }
 
@@ -43,14 +43,10 @@ class MySQLDatabaseTest extends TestCase
      */
     public function testDumpFailure()
     {
-        $processHandler = m::mock('EDouna\LaravelDBBackup\ProcessHandler');
-        $processHandler->shouldReceive('run')->andReturn(false);
+        $this->processHandlerMock->method('run')->willReturn(false);
 
         $this->assertFalse($this->database->backup());
     }
 
-    public function testDatabaseIdentifier()
-    {
-        $this->assertEquals($this->database->backup(), 'mysql');
-    }
+
 }

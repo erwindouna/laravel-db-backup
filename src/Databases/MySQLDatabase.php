@@ -4,6 +4,7 @@ namespace EDouna\LaravelDBBackup\Databases;
 
 use EDouna\LaravelDBBackup\ProcessHandler;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\Console\Helper\ProcessHelper;
 
 class MySQLDatabase implements DatabaseInterface
 {
@@ -28,7 +29,7 @@ class MySQLDatabase implements DatabaseInterface
      * @param string $port
      * @param string $storageFolder
      */
-    public function __construct(string $database, string $user, string $password, string $host, string $port, string $storageFolder)
+    public function __construct(string $database, string $user, string $password, string $host, string $port, string $storageFolder, ProcessHandler $processHandler)
     {
         Log::debug('Constructing MySQL database class.');
         $this->database = $database;
@@ -41,6 +42,8 @@ class MySQLDatabase implements DatabaseInterface
 
         $this->fileExtension = 'sql';
         $this->databaseIdentifier = 'mysql';
+
+        $this->processHandler = $processHandler;
     }
 
     /**
@@ -63,7 +66,6 @@ class MySQLDatabase implements DatabaseInterface
         //$storageFilepath = '"' . addcslashes($this->storageFolder, '\\"') . '"';
         $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $this->backupFilename);
 
-        $this->processHandler = new ProcessHandler();
         if (false === $this->processHandler->run($command)) {
             return false;
         }
@@ -119,8 +121,7 @@ class MySQLDatabase implements DatabaseInterface
         $startTimeImport = microtime(true);
         $backupFile = '"' . addcslashes($backupFile, '\\"') . '"';
         $command = sprintf('mysql %s %s < %s', $this->getCredentials(), $this->database, $backupFile);
-
-        $processHandler = new ProcessHandler();
+        
         if (false === $this->processHandler->run($command)) {
             return false;
         }
