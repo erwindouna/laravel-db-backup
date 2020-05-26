@@ -13,6 +13,7 @@ class MySQLDatabaseTest extends TestCase
 {
     protected $database;
     protected $processHandlerMock;
+    protected $testBackupFile;
 
     public function setUp(): void
     {
@@ -20,6 +21,7 @@ class MySQLDatabaseTest extends TestCase
 
         $this->processHandlerMock = $this->getMockBuilder('EDouna\LaravelDBBackup\ProcessHandler')->getMock();
         $this->database = new MySQLDatabase('testDatabase', 'testUser', 'testPassword', 'testHost', '3306', storage_path('db-backups'), $this->processHandlerMock);
+        $this->testBackupFile = 'testBackupFile.sql';
     }
 
     public function tearDown(): void
@@ -46,6 +48,26 @@ class MySQLDatabaseTest extends TestCase
         $this->processHandlerMock->method('run')->willReturn(false);
 
         $this->assertFalse($this->database->backup());
+    }
+
+     /**
+     * @test
+     */
+    public function testRestoreSuccess()
+    {
+        $this->processHandlerMock->method('run')->willReturn(true);
+
+        $this->assertTrue($this->database->restore($this->testBackupFile));
+    }
+
+     /**
+     * @test
+     */
+    public function testRestoreFailure()
+    {
+        $this->processHandlerMock->method('run')->willReturn(false);
+
+        $this->assertFalse($this->database->restore($this->testBackupFile));
     }
 
     /**
