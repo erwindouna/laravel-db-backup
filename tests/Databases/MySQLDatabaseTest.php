@@ -12,10 +12,6 @@ class MySQLDatabaseTest extends TestCase
     protected $database;
     protected $console;
 
-    /**
-     * @environment-setup useMySqlConnection
-     * @environment-setup useStoragePath
-     */
     public function setUp(): void
     {
         parent::setUp();
@@ -29,9 +25,23 @@ class MySQLDatabaseTest extends TestCase
         m::close();
     }
 
-    public function testDump()
+    /**
+     * @test
+     */
+    public function testDumpSuccess()
     {
-        $this->assertTrue($this->database->backup());
+        $processHandler = m::mock('EDouna\LaravelDBBackup\ProcessHandler');
+        $processHandler->shouldReceive('run')->andReturn(true);
+        $this->assertTrue($this->database->backup($processHandler));
     }
 
+    /**
+     * @test
+     */
+    public function testDumpFailure()
+    {
+        $processHandler = m::mock('EDouna\LaravelDBBackup\ProcessHandler');
+        $processHandler->shouldReceive('run')->andReturn(false);
+        $this->assertFalse($this->database->backup($processHandler));
+    }
 }

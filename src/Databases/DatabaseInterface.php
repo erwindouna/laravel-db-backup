@@ -2,11 +2,13 @@
 
 namespace EDouna\LaravelDBBackup\Databases;
 
+use EDouna\LaravelDBBackup\ProcessHandler;
+
 interface DatabaseInterface
 {
-    public function backup();
+    public function backup(ProcessHandler $processHandler);
 
-    public function restore(string $backupFile);
+    public function restore(ProcessHandler $processHandler, string $backupFile);
 
     /**
      * @return string

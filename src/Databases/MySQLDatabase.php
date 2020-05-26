@@ -2,8 +2,8 @@
 
 namespace EDouna\LaravelDBBackup\Databases;
 
+use EDouna\LaravelDBBackup\ProcessHandler;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\Process\Process;
 
 class MySQLDatabase implements DatabaseInterface
 {
@@ -51,9 +51,10 @@ class MySQLDatabase implements DatabaseInterface
     }
 
     /**
+     * @param ProcessHandler $processHandler
      * @return bool
      */
-    public function backup(): bool
+    public function backup(ProcessHandler $processHandler): bool
     {
         Log::debug('Start creating MySQL dump file.');
         $this->createBackupFilename();
@@ -61,24 +62,7 @@ class MySQLDatabase implements DatabaseInterface
         //$storageFilepath = '"' . addcslashes($this->storageFolder, '\\"') . '"';
         $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $this->backupFilename);
 
-        $process = Process::fromShellCommandline($command, null, null, null, 9999.00);
-
-        $processFailure = false;
-        $process->run(function ($type, $buffer) use ($processFailure): bool {
-            if (Process::OUT === $type) {
-                Log::debug('MySQL Dump buffer: '.$buffer);
-            }
-            if (Process::ERR === $type) {
-                if (!strpos($buffer, '[Warning]')) {
-                    Log::error('Error whilst performing mysqldump. Dump stopped. Output of buffer: '.$buffer);
-                    $processFailure = true;
-                }
-            }
-
-            return $processFailure;
-        });
-
-        if (true === $processFailure) {
+        if (false === $processHandler->run($command)) {
             return false;
         }
 
@@ -121,31 +105,22 @@ class MySQLDatabase implements DatabaseInterface
         return sprintf('--user=%s --password=%s --host=%s --port=%s', $this->user, $this->password, $this->host, $this->port);
     }
 
-    public function restore(string $backupFile): bool
+    /**
+     * @param ProcessHandler $processHandler
+     * @param string $backupFile
+     * @return bool
+     */
+    public function restore(ProcessHandler $processHandler, string $backupFile): bool
     {
         Log::debug('Starting MySQL import procedure.');
 
         $startTimeImport = microtime(true);
-        $backupFile = '"'.addcslashes($backupFile, '\\"').'"';
+        $backupFile = '"' . addcslashes($backupFile, '\\"') . '"';
         $command = sprintf('mysql %s %s < %s', $this->getCredentials(), $this->database, $backupFile);
 
-        $process = Process::fromShellCommandline($command, null, null, null, 9999.00);
-
-        $process->run(function ($type, $buffer): bool {
-            if (Process::OUT === $type) {
-                Log::debug('MySQL import buffer: '.$buffer);
-            }
-            if (Process::ERR === $type) {
-                if (strpos($buffer, '[Warning]')) {
-                    return false;
-                }
-                Log::error('Error whilst performing mysql import. Import stopped. Output of buffer: '.$buffer);
-
-                return false;
-            }
-
-            return true;
-        });
+        if (false === $processHandler->run($command)) {
+            return false;
+        }
 
         $endTimeImport = round(microtime(true) - $startTimeImport, 2);
         Log::debug(sprintf('Import successfully run in %s second(s).', $endTimeImport));
