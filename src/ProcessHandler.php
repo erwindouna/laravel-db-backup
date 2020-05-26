@@ -7,7 +7,13 @@ use Symfony\Component\Process\Process;
 
 class ProcessHandler
 {
-    public function run($command): bool
+   /**
+    * Run the Symfony fromShellCommandLine
+    *
+    * @param string $command
+    * @return boolean
+    */
+    public function run(string $command): bool
     {
         $process = Process::fromShellCommandline($command, null, null, null, 999.00);
 

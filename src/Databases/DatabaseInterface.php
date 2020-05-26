@@ -6,9 +6,9 @@ use EDouna\LaravelDBBackup\ProcessHandler;
 
 interface DatabaseInterface
 {
-    public function backup(ProcessHandler $processHandler);
+    public function backup();
 
-    public function restore(ProcessHandler $processHandler, string $backupFile);
+    public function restore(string $backupFile);
 
     /**
      * @return string

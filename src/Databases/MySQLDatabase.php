@@ -16,6 +16,7 @@ class MySQLDatabase implements DatabaseInterface
     protected $backupFilename;
     protected $fileExtension;
     protected $databaseIdentifier;
+    protected $processHandler;
 
     /**
      * MySQLDatabase constructor.
@@ -51,10 +52,10 @@ class MySQLDatabase implements DatabaseInterface
     }
 
     /**
-     * @param ProcessHandler $processHandler
+     *
      * @return bool
      */
-    public function backup(ProcessHandler $processHandler): bool
+    public function backup(): bool
     {
         Log::debug('Start creating MySQL dump file.');
         $this->createBackupFilename();
@@ -62,7 +63,8 @@ class MySQLDatabase implements DatabaseInterface
         //$storageFilepath = '"' . addcslashes($this->storageFolder, '\\"') . '"';
         $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $this->backupFilename);
 
-        if (false === $processHandler->run($command)) {
+        $this->processHandler = new ProcessHandler();
+        if (false === $this->processHandler->run($command)) {
             return false;
         }
 
@@ -76,7 +78,7 @@ class MySQLDatabase implements DatabaseInterface
      */
     protected function createBackupFilename(): void
     {
-        $this->backupFilename = $this->storageFolder.$this->getDatabaseIdentifier().'-'.microtime(true).'.'.$this->getFileExtension();
+        $this->backupFilename = $this->storageFolder . $this->getDatabaseIdentifier() . '-' . microtime(true) . '.' . $this->getFileExtension();
     }
 
     /**
@@ -110,7 +112,7 @@ class MySQLDatabase implements DatabaseInterface
      * @param string $backupFile
      * @return bool
      */
-    public function restore(ProcessHandler $processHandler, string $backupFile): bool
+    public function restore(string $backupFile): bool
     {
         Log::debug('Starting MySQL import procedure.');
 
@@ -118,7 +120,8 @@ class MySQLDatabase implements DatabaseInterface
         $backupFile = '"' . addcslashes($backupFile, '\\"') . '"';
         $command = sprintf('mysql %s %s < %s', $this->getCredentials(), $this->database, $backupFile);
 
-        if (false === $processHandler->run($command)) {
+        $processHandler = new ProcessHandler();
+        if (false === $this->processHandler->run($command)) {
             return false;
         }
 

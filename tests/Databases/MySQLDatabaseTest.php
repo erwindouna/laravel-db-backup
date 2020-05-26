@@ -7,6 +7,8 @@ use EDouna\LaravelDBBackup\Databases\MySQLDatabase;
 use Mockery as m;
 use Orchestra\Testbench\TestCase;
 
+use function PHPUnit\Framework\assertEquals;
+
 class MySQLDatabaseTest extends TestCase
 {
     protected $database;
@@ -32,7 +34,8 @@ class MySQLDatabaseTest extends TestCase
     {
         $processHandler = m::mock('EDouna\LaravelDBBackup\ProcessHandler');
         $processHandler->shouldReceive('run')->andReturn(true);
-        $this->assertTrue($this->database->backup($processHandler));
+
+        $this->assertTrue($this->database->backup());
     }
 
     /**
@@ -42,6 +45,12 @@ class MySQLDatabaseTest extends TestCase
     {
         $processHandler = m::mock('EDouna\LaravelDBBackup\ProcessHandler');
         $processHandler->shouldReceive('run')->andReturn(false);
-        $this->assertFalse($this->database->backup($processHandler));
+
+        $this->assertFalse($this->database->backup());
+    }
+
+    public function testDatabaseIdentifier()
+    {
+        $this->assertEquals($this->database->backup(), 'mysql');
     }
 }
