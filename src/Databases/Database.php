@@ -59,9 +59,9 @@ class Database
     }
 
     /**
-     * @return object
+     * @return array
      */
-    public function getRealDatabase(): object
+    public function getRealDatabase(): array
     {
         return $this->realDatabase;
     }
