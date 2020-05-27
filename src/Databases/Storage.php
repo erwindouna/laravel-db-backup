@@ -3,6 +3,7 @@
 namespace EDouna\LaravelDBBackup\Databases;
 
 use EDouna\LaravelDBBackup\ProcessHandler;
+use Exception;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
