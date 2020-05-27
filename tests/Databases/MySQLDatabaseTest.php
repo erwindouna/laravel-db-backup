@@ -2,7 +2,6 @@
 
 namespace EDouna\LaravelDBBackup\Test\Databases;
 
-use Config;
 use EDouna\LaravelDBBackup\Databases\MySQLDatabase;
 use Mockery as m;
 use Orchestra\Testbench\TestCase;

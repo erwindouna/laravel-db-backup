@@ -9,7 +9,8 @@ class ProcessHandler
 {
     /**
      * @param string $command
-     * @return boolean
+     *
+     * @return bool
      */
     public function run(string $command): bool
     {
@@ -18,6 +19,7 @@ class ProcessHandler
 
         if ($process->getExitCode() !== 0) {
             Log::error(sprintf('Failure in the processor. Please verify if the command is recognized. Exit code text returned: "%s". Error output: %s', $process->getExitCodeText(), $process->getErrorOutput()));
+
             return false;
         }
 
@@ -26,6 +28,7 @@ class ProcessHandler
 
     /**
      * @param array $command
+     *
      * @return bool
      */
     public static function runArray(array $command): bool
@@ -35,6 +38,7 @@ class ProcessHandler
 
         if ($process->getExitCode() !== 0) {
             Log::error(sprintf('Failure in the processor. Please verify if the command is recognized. Exit code text returned: "%s". Error output: %s', $process->getExitCodeText(), $process->getErrorOutput()));
+
             return false;
         }
 

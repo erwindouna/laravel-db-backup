@@ -17,7 +17,7 @@ class BaseTestCase extends TestCase
     public function getPackageProviders($app)
     {
         return [
-            LaravelDBBackupProvider::class
+            LaravelDBBackupProvider::class,
         ];
     }
 
@@ -30,6 +30,7 @@ class BaseTestCase extends TestCase
      * @param $object
      * @param $property
      * @param $value
+     *
      * @throws ReflectionException
      */
     public function setProtectedProperty($object, $property, $value): void
@@ -37,7 +38,7 @@ class BaseTestCase extends TestCase
         try {
             $reflection = new ReflectionClass($object);
         } catch (ReflectionException $e) {
-            throw new ReflectionException("Failed setting Protected property. Exception thrown: " . $e->getMessage());
+            throw new ReflectionException('Failed setting Protected property. Exception thrown: '.$e->getMessage());
         }
 
         $reflection_property = $reflection->getProperty($property);
@@ -48,6 +49,7 @@ class BaseTestCase extends TestCase
     /**
      * @param $object
      * @param $property
+     *
      * @throws ReflectionException
      */
     public function getProtectedProperty($object, $property): void
@@ -55,7 +57,7 @@ class BaseTestCase extends TestCase
         try {
             $reflection = new ReflectionClass($object);
         } catch (ReflectionException $e) {
-            throw new ReflectionException("Failed getting Protected property. Exception thrown: " . $e->getMessage());
+            throw new ReflectionException('Failed getting Protected property. Exception thrown: '.$e->getMessage());
         }
 
         $reflection_property = $reflection->getProperty($property);
@@ -68,20 +70,20 @@ class BaseTestCase extends TestCase
         $app->config->set('database.default', 'mysql');
 
         $app->config->set('database.connections.mysql', [
-            'driver' => 'mysql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
+            'driver'         => 'mysql',
+            'url'            => env('DATABASE_URL'),
+            'host'           => env('DB_HOST', '127.0.0.1'),
+            'port'           => env('DB_PORT', '3306'),
+            'database'       => env('DB_DATABASE', 'forge'),
+            'username'       => env('DB_USERNAME', 'forge'),
+            'password'       => env('DB_PASSWORD', ''),
+            'unix_socket'    => env('DB_SOCKET', ''),
+            'charset'        => 'utf8mb4',
+            'collation'      => 'utf8mb4_unicode_ci',
+            'prefix'         => '',
             'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null
+            'strict'         => true,
+            'engine'         => null,
         ]);
     }
 

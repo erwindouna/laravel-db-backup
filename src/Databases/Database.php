@@ -32,7 +32,7 @@ class Database
     public function __construct()
     {
         $this->database = Config::get('database.default');
-        $this->realDatabase = Config::get('database.connections.' . $this->database);
+        $this->realDatabase = Config::get('database.connections.'.$this->database);
         $this->processHandler = new ProcessHandler();
     }
 
@@ -47,7 +47,6 @@ class Database
                 break;
         }
     }
-
 
     /**
      * @return bool
