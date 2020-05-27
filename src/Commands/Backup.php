@@ -43,8 +43,9 @@ class Backup extends Command
         parent::__construct();
 
         $this->storage = $storage;
-        $this->database = $storage;
+        $this->database = $database;
 
+        $this->database->setStorageFolder($this->storage->getStorageFolder());
     }
 
     /**
@@ -58,13 +59,10 @@ class Backup extends Command
         $this->line('Starting back-up procedure.');
         $startTime = microtime(true);
 
-        $endTime = round(microtime(true) - $startTime, 2);
-
         if (false === $this->database->isDatabaseSupported()) {
             $this->error(sprintf('The current selected %s is not supported for the back-up procedure.', $this->database->getRealDatabase()->getDatabaseIdentifier()));
             return 1;
         }
-
 
         // Run the back-up
         if (false === $this->database->getRealDatabase()->backup()) {
@@ -73,12 +71,14 @@ class Backup extends Command
             return 1;
         }
 
+
         if (false === $this->createArchiveFile()) {
             $this->error('Error while creating the archive file. Please find the error log for further details.');
 
             return 1;
         }
 
+        $endTime = round(microtime(true) - $startTime, 2);
         $this->line(sprintf('Finished back-up procedure in %s second(s).', $endTime));
 
         return 0;
@@ -97,6 +97,5 @@ class Backup extends Command
 
     protected function generateBackupFilename()
     {
-
     }
 }

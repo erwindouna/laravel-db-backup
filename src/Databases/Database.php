@@ -20,14 +20,17 @@ class Database
 
     protected $processHandler;
 
+    protected $storage;
+
     public $backupFilename;
+
+    protected $storageFolder;
 
     /**
      * @var array
      */
     protected $supportedDatabaseDrivers = ['mysql', 'sqlite'];
 
-    protected $storageFolder;
 
     public function __construct()
     {
@@ -51,17 +54,17 @@ class Database
         }
     }
 
+    public function setStorageFolder(string $storageFolder): void
+    {
+        $this->storageFolder = $storageFolder;
+    }
+
     /**
      * @return bool
      */
     public function isDatabaseSupported(): bool
     {
         return (in_array($this->realDatabase->getDatabaseIdentifier(), $this->supportedDatabaseDrivers)) ? true : false;
-    }
-
-    public function getStorage(): object
-    {
-        return $this->storage;
     }
 
     /**
@@ -73,14 +76,6 @@ class Database
     }
 
     /**
-     * @return string
-     */
-    public function getStorageFolder(): string
-    {
-        return $this->storageFolder;
-    }
-
-    /**
      * Used to generically generate files names in one class
      *
      * @param string $databaseIdentifier
@@ -89,8 +84,7 @@ class Database
      */
     public function generateBackupFilename(string $databaseIdentifier, string $databaseFileExtension): string
     {
-        dd($this);
-        return $this->backupFilename = $this->storage->getStorageFolder() . $databaseIdentifier . '-' . time() . '.' . $databaseFileExtension;
+        return $this->backupFilename = $this->storageFolder . $databaseIdentifier . '-' . time() . '.' . $databaseFileExtension;
     }
 
     /**
@@ -114,7 +108,7 @@ class Database
             $database['password'],
             $database['host'],
             $database['port'],
-            $this->processHandler,
+            $this->processHandler
         );
 
         $this->generateBackupFilename($this->database->getDatabaseIdentifier(), $this->database->getFileExtension());
@@ -137,5 +131,4 @@ class Database
 
         return $this->database;
     }
-
 }

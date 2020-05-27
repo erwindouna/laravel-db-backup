@@ -10,7 +10,6 @@ use Symfony\Component\Process\Process;
 
 class Storage
 {
-    protected $database;
     protected $storagePath;
     protected $backupFilename;
 
@@ -29,7 +28,7 @@ class Storage
     {
         $configStoragePath = Config::get('db-backup.backup_folder');
         if (substr($configStoragePath, -1, 1) !== DIRECTORY_SEPARATOR) {
-            Log::info('Stored back-up folder is not probably set. Fixing.');
+            Log::debug('Stored back-up folder is not probably set. Fixing.');
             $configStoragePath = $configStoragePath . DIRECTORY_SEPARATOR;
         }
 
@@ -48,8 +47,7 @@ class Storage
             Log::debug('Storage path does not exist. Attempting to create.');
             if (false === File::makeDirectory($this->storagePath)) {
                 Log::error('Unable to create create storage path.');
-
-                throw CannotCreateStorageFolderException::message();
+                return false;
             }
             Log::debug('Storage path successfully created.');
         }

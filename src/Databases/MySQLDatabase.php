@@ -41,7 +41,7 @@ class MySQLDatabase extends Database implements DatabaseInterface
         $this->fileExtension = 'sql';
         $this->databaseIdentifier = 'mysql';
 
-        $this->processHandler = $processHandler;
+        $this->processHandler=$processHandler;
     }
 
     /**
