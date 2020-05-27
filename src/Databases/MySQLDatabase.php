@@ -12,11 +12,9 @@ class MySQLDatabase implements DatabaseInterface
     protected $password;
     protected $host;
     protected $port;
-    protected $storageFolder;
     protected $fileExtension;
     protected $databaseIdentifier;
     protected $processHandler;
-    protected $storage;
 
     /**
      * MySQLDatabase constructor.
@@ -27,7 +25,6 @@ class MySQLDatabase implements DatabaseInterface
      * @param string $host
      * @param string $port
      * @param ProcessHandler $processHandler
-     * @param Storage $storage
      */
     public function __construct(string $database, string $user, string $password, string $host, string $port, ProcessHandler $processHandler)
     {
@@ -41,11 +38,12 @@ class MySQLDatabase implements DatabaseInterface
         $this->fileExtension = 'sql';
         $this->databaseIdentifier = 'mysql';
 
-        $this->processHandler=$processHandler;
+        $this->processHandler = $processHandler;
     }
 
     /**
      *
+     * @param string $backupFilename
      * @return bool
      */
     public function backup(string $backupFilename): bool

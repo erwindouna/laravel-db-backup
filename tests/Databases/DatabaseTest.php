@@ -17,6 +17,7 @@ class DatabaseTest extends TestCase
     {
         parent::setUp();
         $this->database = new Database();
+        $this->database->buildDatabaseClass();
     }
 
     /**

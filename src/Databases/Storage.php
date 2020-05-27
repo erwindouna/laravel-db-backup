@@ -2,7 +2,7 @@
 
 namespace EDouna\LaravelDBBackup\Databases;
 
-use EDouna\LaravelDBBackup\Exceptions\CannotCreateStorageFolderException;
+use EDouna\LaravelDBBackup\ProcessHandler;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -13,18 +13,10 @@ class Storage
     protected $storagePath;
     protected $backupFilename;
 
-    public function __construct()
-    {
-        $this->storagePath = $this->sanitizeStoragePath();
-
-        // Always check if the back-up folder is present
-        //$this->initializeStorageFolder();
-    }
-
     /**
-     * @return string
+     * @return void
      */
-    protected function sanitizeStoragePath(): string
+    public function sanitizeStoragePath(): void
     {
         $configStoragePath = Config::get('db-backup.backup_folder');
         if (substr($configStoragePath, -1, 1) !== DIRECTORY_SEPARATOR) {
@@ -32,16 +24,15 @@ class Storage
             $configStoragePath = $configStoragePath . DIRECTORY_SEPARATOR;
         }
 
-        return $configStoragePath;
+        $this->storagePath = $configStoragePath;
     }
 
     /**
      * @return bool
-     * @throws CannotCreateStorageFolderException
-     *
      */
     public function initializeStorageFolder(): bool
     {
+        $this->sanitizeStoragePath();
         Log::debug(sprintf('Checking if storage path exists at %s', $this->storagePath));
         if (false === File::isDirectory($this->storagePath)) {
             Log::debug('Storage path does not exist. Attempting to create.');
@@ -56,6 +47,22 @@ class Storage
 
         return true;
     }
+
+    /**
+     * @param string $backupFilePath
+     * @return bool
+     */
+    public function createArchiveFile(string $backupFilePath): bool
+    {
+        Log::debug('Trying to start creating an archive file');
+        if (false === ProcessHandler::runArray(['gzip', '-9', $backupFilePath])) {
+            return false;
+        }
+
+        Log::debug('Finished creating an archive file.');
+        return true;
+    }
+
 
     /**
      * @param string $databaseIdentifier
@@ -102,6 +109,36 @@ class Storage
     }
 
     /**
+     * @param string $databaseIdentifier
+     * @return array|null
+     */
+    public function getMostRecentBackups(string $databaseIdentifier): ?array
+    {
+        Log::debug('Searching for archived back-up files.');
+
+        try {
+            $files = File::files($this->storagePath);
+        } catch (Exception $e) {
+            Log::error(sprintf('Unable to reach storage path. Exception thrown: %s', $e->getMessage()));
+
+            return null;
+        }
+
+        // Get the files matching the database identifier
+        $filesFilter = array_filter($files, function ($item) use ($databaseIdentifier) {
+            return strpos($item, $databaseIdentifier);
+        });
+
+        if (null === $filesFilter || empty($filesFilter)) {
+            Log::error(sprintf('No back-up files found for driver %s. No need to continue the restore procedure.', $databaseIdentifier));
+
+            return null;
+        }
+
+        return $filesFilter;
+    }
+
+    /**
      * @param string $backupFile
      * @param Database $database
      * @return string|null
@@ -145,13 +182,5 @@ class Storage
         Log::debug('Finished cleaning up temp back-up file.');
 
         return true;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStorageFolder(): string
-    {
-        return $this->storagePath;
     }
 }

@@ -3,12 +3,9 @@
 namespace EDouna\LaravelDBBackup\Commands;
 
 use Carbon\Carbon;
-use EDouna\LaravelDBBackup\Databases\Database;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
-class Restore extends Command
+class Restore extends BaseCommand
 {
     /**
      * The name and signature of the console command.
@@ -25,24 +22,6 @@ class Restore extends Command
     protected $description = 'Retrieve a list of available back-ups of the current database driver and provides a choice list.';
 
     /**
-     * Store the main database class.
-     *
-     * @var Database
-     */
-    protected $database;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param Database $database
-     */
-    public function __construct(Database $database)
-    {
-        $this->database = $database;
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
@@ -53,9 +32,16 @@ class Restore extends Command
         $this->line('Starting restore procedure.');
         $startTime = microtime(true);
 
-        $files = $this->getMostRecentBackups();
+        $this->database->buildDatabaseClass();
+
+        if (false === $this->storage->initializeStorageFolder()) {
+            $this->error('Error in the back-up directory. Please see the error log for further details.');
+            return 1;
+        }
+
+        $files = $this->storage->getMostRecentBackups($this->database->getRealDatabase()->getDatabaseIdentifier());
         if (null === $files) {
-            $this->error(sprintf('No back-up files found for driver %s. No need to continue the restore procedure.', $this->databaseMain->getDatabase()->getDatabaseIdentifier()));
+            $this->error(sprintf('No back-up files found for driver %s. No need to continue the restore procedure.', $this->database->getRealDatabase()->getDatabaseIdentifier()));
 
             return 1;
         }
@@ -71,7 +57,9 @@ class Restore extends Command
         $restoreSelection = explode(' ', $restoreSelection);
         $restoreSelection = $restoreSelection[0];
 
-        $decompressedFile = $this->database->getStorage()->decompressBackupFile($files[$restoreSelection], $this->database);
+        $this->comment('Restoring back-up. Depending on the file size this might take a few moments...');
+
+        $decompressedFile = $this->storage->decompressBackupFile($files[$restoreSelection], $this->database);
         if (false === $decompressedFile) {
             Log::error('Error in decompressing the archive. Please see the log files for further details.');
             $this->error('Error in decompressing the archive. Please see the log files for further details.');
@@ -86,7 +74,7 @@ class Restore extends Command
             return 1;
         }
 
-        if (false === $this->database->getStorage()->clearTmpFile($decompressedFile)) {
+        if (false === $this->storage->clearTmpFile($decompressedFile)) {
             Log::error('Error in cleaning the temp back-up file. Please see the log files for further details.');
             $this->error('Error in cleaning the temp back-up file. Please see the log files for further details.');
 
@@ -100,32 +88,5 @@ class Restore extends Command
         return 0;
     }
 
-    /**
-     * @return array|null
-     */
-    protected function getMostRecentBackups(): ?array
-    {
-        Log::debug('Searching for archived back-up files.');
 
-        try {
-            $files = File::files($this->database->getStorageFolder());
-        } catch (Exception $e) {
-            Log::error(sprintf('Unable to reach storage path. Exception thrown: %s', $e->getMessage()));
-
-            return null;
-        }
-
-        // Get the files matching the database identifier
-        $filesFilter = array_filter($files, function ($item) {
-            return strpos($item, $this->database->getRealDatabase()->getDatabaseIdentifier());
-        });
-
-        if (null === $filesFilter || empty($filesFilter)) {
-            Log::error(sprintf('No back-up files found for driver %s. No need to continue the restore procedure.', $this->database->getRealDatabase()->getDatabaseIdentifier()));
-
-            return null;
-        }
-
-        return $filesFilter;
-    }
 }

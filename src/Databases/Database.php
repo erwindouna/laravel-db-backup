@@ -20,8 +20,6 @@ class Database
 
     protected $processHandler;
 
-    protected $storage;
-
     public $backupFilename;
 
     protected $storageFolder;
@@ -31,14 +29,11 @@ class Database
      */
     protected $supportedDatabaseDrivers = ['mysql', 'sqlite'];
 
-
     public function __construct()
     {
         $this->database = Config::get('database.default');
         $this->realDatabase = Config::get('database.connections.' . $this->database);
         $this->processHandler = new ProcessHandler();
-
-        $this->buildDatabaseClass();
     }
 
     public function buildDatabaseClass(): void
@@ -53,10 +48,6 @@ class Database
         }
     }
 
-    public function setStorageFolder(string $storageFolder): void
-    {
-        $this->storageFolder = $storageFolder;
-    }
 
     /**
      * @return bool
