@@ -57,7 +57,7 @@ class Restore extends Command
         if (null === $files) {
             $this->error(sprintf('No back-up files found for driver %s. No need to continue the restore procedure.', $this->databaseMain->getDatabase()->getDatabaseIdentifier()));
 
-            return 0;
+            return 1;
         }
 
         $selectionArray = [];
@@ -76,28 +76,28 @@ class Restore extends Command
             Log::error('Error in decompressing the archive. Please see the log files for further details.');
             $this->error('Error in decompressing the archive. Please see the log files for further details.');
 
-            return 0;
+            return 1;
         }
 
         if (false === $this->database->getRealDatabase()->restore($decompressedFile)) {
             Log::error('Error in restoring the database archive. Please see the log files for further details.');
             $this->error('Error in restoring the database archive. Please see the log files for further details.');
 
-            return 0;
+            return 1;
         }
 
         if (false === $this->database->getStorage()->clearTmpFile($decompressedFile)) {
             Log::error('Error in cleaning the temp back-up file. Please see the log files for further details.');
             $this->error('Error in cleaning the temp back-up file. Please see the log files for further details.');
 
-            return 0;
+            return 1;
         }
 
         $endTime = round(microtime(true) - $startTime, 2);
         $this->comment(sprintf('Finished restoring the database in %s second(s).', $endTime));
         Log::info(sprintf('Finished restoring the database in %s second(s).', $endTime));
 
-        return 1;
+        return 0;
     }
 
     /**

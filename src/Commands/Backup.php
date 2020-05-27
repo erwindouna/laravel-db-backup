@@ -62,7 +62,7 @@ class Backup extends Command
 
         if (false === $this->database->isDatabaseSupported()) {
             $this->error(sprintf('The current selected %s is not supported for the back-up procedure.', $this->database->getRealDatabase()->getDatabaseIdentifier()));
-            return 0;
+            return 1;
         }
 
 
@@ -70,18 +70,18 @@ class Backup extends Command
         if (false === $this->database->getRealDatabase()->backup()) {
             $this->error('Error while performing back-up. Please find the error log for further details.');
 
-            return 0;
+            return 1;
         }
 
         if (false === $this->createArchiveFile()) {
             $this->error('Error while creating the archive file. Please find the error log for further details.');
 
-            return 0;
+            return 1;
         }
 
         $this->line(sprintf('Finished back-up procedure in %s second(s).', $endTime));
 
-        return 1;
+        return 0;
     }
 
     protected function createArchiveFile()
