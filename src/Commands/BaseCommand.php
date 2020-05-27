@@ -13,7 +13,8 @@ class BaseCommand extends Command
 
     /**
      * BaseCommand constructor.
-     * @param Storage $storage
+     *
+     * @param Storage  $storage
      * @param Database $database
      */
     public function __construct(Storage $storage, Database $database)

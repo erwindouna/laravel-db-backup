@@ -36,6 +36,7 @@ class Restore extends BaseCommand
 
         if (false === $this->storage->initializeStorageFolder()) {
             $this->error('Error in the back-up directory. Please see the error log for further details.');
+
             return 1;
         }
 
@@ -87,6 +88,4 @@ class Restore extends BaseCommand
 
         return 0;
     }
-
-
 }

@@ -19,11 +19,11 @@ class MySQLDatabase implements DatabaseInterface
     /**
      * MySQLDatabase constructor.
      *
-     * @param string $database
-     * @param string $user
-     * @param string $password
-     * @param string $host
-     * @param string $port
+     * @param string         $database
+     * @param string         $user
+     * @param string         $password
+     * @param string         $host
+     * @param string         $port
      * @param ProcessHandler $processHandler
      */
     public function __construct(string $database, string $user, string $password, string $host, string $port, ProcessHandler $processHandler)
@@ -42,8 +42,8 @@ class MySQLDatabase implements DatabaseInterface
     }
 
     /**
-     *
      * @param string $backupFilename
+     *
      * @return bool
      */
     public function backup(string $backupFilename): bool
@@ -88,6 +88,7 @@ class MySQLDatabase implements DatabaseInterface
 
     /**
      * @param string $backupFile
+     *
      * @return bool
      */
     public function restore(string $backupFile): bool
@@ -95,7 +96,7 @@ class MySQLDatabase implements DatabaseInterface
         Log::debug('Starting MySQL import procedure.');
 
         $startTimeImport = microtime(true);
-        $backupFile = '"' . addcslashes($backupFile, '\\"') . '"';
+        $backupFile = '"'.addcslashes($backupFile, '\\"').'"';
         $command = sprintf('mysql %s %s < %s', $this->getCredentials(), $this->database, $backupFile);
 
         if (false === $this->processHandler->run($command)) {

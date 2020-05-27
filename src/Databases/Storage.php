@@ -22,7 +22,7 @@ class Storage
         $configStoragePath = Config::get('db-backup.backup_folder');
         if (substr($configStoragePath, -1, 1) !== DIRECTORY_SEPARATOR) {
             Log::debug('Stored back-up folder is not probably set. Fixing.');
-            $configStoragePath = $configStoragePath . DIRECTORY_SEPARATOR;
+            $configStoragePath = $configStoragePath.DIRECTORY_SEPARATOR;
         }
 
         $this->storagePath = $configStoragePath;
@@ -39,6 +39,7 @@ class Storage
             Log::debug('Storage path does not exist. Attempting to create.');
             if (false === File::makeDirectory($this->storagePath)) {
                 Log::error('Unable to create create storage path.');
+
                 return false;
             }
             Log::debug('Storage path successfully created.');
@@ -51,6 +52,7 @@ class Storage
 
     /**
      * @param string $backupFilePath
+     *
      * @return bool
      */
     public function createArchiveFile(string $backupFilePath): bool
@@ -61,24 +63,25 @@ class Storage
         }
 
         Log::debug('Finished creating an archive file.');
+
         return true;
     }
-
 
     /**
      * @param string $databaseIdentifier
      * @param string $databaseFileExtension
+     *
      * @return string
      */
     public function generateBackupFilename(string $databaseIdentifier, string $databaseFileExtension): string
     {
-        return $this->backupFilename = $this->storagePath . $databaseIdentifier . '-' . time() . '.' . $databaseFileExtension;
+        return $this->backupFilename = $this->storagePath.$databaseIdentifier.'-'.time().'.'.$databaseFileExtension;
     }
 
     /**
-     * @param string $backupFile
-     *
+     * @param string   $backupFile
      * @param Database $database
+     *
      * @return string|string[]|null
      */
     public function decompressBackupFile(string $backupFile, Database $database)
@@ -93,10 +96,10 @@ class Storage
         $process = new Process(['gzip', '-d', $workableFile]);
         $process->run(function ($type, $buffer): bool {
             if (Process::OUT === $type) {
-                Log::debug('gzip buffer: ' . $buffer);
+                Log::debug('gzip buffer: '.$buffer);
             }
             if (Process::ERR === $type) {
-                Log::error('Error whilst performing zip action. Output of buffer: ' . $buffer);
+                Log::error('Error whilst performing zip action. Output of buffer: '.$buffer);
 
                 return false;
             }
@@ -111,6 +114,7 @@ class Storage
 
     /**
      * @param string $databaseIdentifier
+     *
      * @return array|null
      */
     public function getMostRecentBackups(string $databaseIdentifier): ?array
@@ -140,20 +144,21 @@ class Storage
     }
 
     /**
-     * @param string $backupFile
+     * @param string   $backupFile
      * @param Database $database
+     *
      * @return string|null
      */
     protected function createTmpFile(string $backupFile, Database $database): ?string
     {
         Log::debug('Creating temp back-up file to not corrupt the archives.');
-        $tmpFilename = 'tmp.' . microtime(true) . '.' . $database->getRealDatabase()->getFileExtension() . '.gz';
-        $filePath = $this->storagePath . $tmpFilename;
+        $tmpFilename = 'tmp.'.microtime(true).'.'.$database->getRealDatabase()->getFileExtension().'.gz';
+        $filePath = $this->storagePath.$tmpFilename;
 
         try {
             File::copy($backupFile, $filePath);
         } catch (Exception $e) {
-            Log::error('Could not create temporary archive file. Exception throw: ' . $e->getMessage());
+            Log::error('Could not create temporary archive file. Exception throw: '.$e->getMessage());
 
             return null;
         }

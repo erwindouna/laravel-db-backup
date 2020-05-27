@@ -35,11 +35,13 @@ class Backup extends BaseCommand
 
         if (false === $this->database->isDatabaseSupported()) {
             $this->error(sprintf('The current selected %s database driver is not (yet) supported.', $this->database->getRealDatabase()->getDatabaseIdentifier()));
+
             return 1;
         }
 
         if (false === $this->storage->initializeStorageFolder()) {
             $this->error('Error in the back-up directory. Please see the error log for further details.');
+
             return 1;
         }
 
