@@ -14,23 +14,14 @@ class ProcessHandler
     public function run(string $command): bool
     {
         $process = Process::fromShellCommandline($command, null, null, null, 999.00);
+        $process->run();
 
-        $processStatus = true;
-        $process->run(function ($type, $buffer) use ($processStatus): bool {
-            if (Process::OUT === $type) {
-                Log::debug('Process buffer: ' . $buffer);
-            }
-            if (Process::ERR === $type) {
-                if (!strpos($buffer, '[Warning]')) {
-                    Log::error('Error will running processor. Output of buffer: ' . $buffer);
-                    $processStatus = false;
-                }
-            }
+        if ($process->getExitCode() !== 0) {
+            Log::error(sprintf('Failure in the processor. Please verify if the command is recognized. Exit code text returned: "%s". Error output: %s', $process->getExitCodeText(), $process->getErrorOutput()));
+            return false;
+        }
 
-            return $processStatus;
-        });
-
-        return $processStatus;
+        return true;
     }
 
     /**
@@ -40,20 +31,13 @@ class ProcessHandler
     public static function runArray(array $command): bool
     {
         $process = new Process($command);
+        $process->run();
 
-        $processStatus = true;
-        $process->run(function ($type, $buffer) use ($processStatus): bool {
-            if (Process::OUT === $type) {
-                Log::debug('Success buffer: ' . $buffer);
-            }
-            if (Process::ERR === $type) {
-                Log::error('Error whilst performing zip action. Output of buffer: ' . $buffer);
-                $processStatus = false;
-            }
+        if ($process->getExitCode() !== 0) {
+            Log::error(sprintf('Failure in the processor. Please verify if the command is recognized. Exit code text returned: "%s". Error output: %s', $process->getExitCodeText(), $process->getErrorOutput()));
+            return false;
+        }
 
-            return $processStatus;
-        });
-
-        return $processStatus;
+        return true;
     }
 }

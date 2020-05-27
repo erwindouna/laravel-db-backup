@@ -52,7 +52,6 @@ class MySQLDatabase implements DatabaseInterface
     {
         Log::debug('Start creating MySQL dump file.');
         $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $backupFilename);
-        dd($command);
 
         if (false === $this->processHandler->run($command)) {
             return false;
