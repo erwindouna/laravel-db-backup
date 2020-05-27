@@ -2,6 +2,7 @@ laravel-db-backup [![Build Status](https://travis-ci.org/EDOUNA/laravel-db-backu
 ==============
 
 Personal Laravel 6.x back-up & restore tool
+(Not recommended to be used at the moment)
 
 ## Installation
 
