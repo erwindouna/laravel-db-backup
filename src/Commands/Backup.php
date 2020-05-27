@@ -4,11 +4,12 @@ namespace EDouna\LaravelDBBackup\Commands;
 
 use EDouna\LaravelDBBackup\Databases\Database;
 use EDouna\LaravelDBBackup\Databases\Storage;
+use EDouna\LaravelDBBackup\Commands\BaseCommand;
 use EDouna\LaravelDBBackup\ProcessHandler;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class Backup extends Command
+class Backup extends BaseCommand
 {
     /**
      * The name and signature of the console command.
@@ -38,14 +39,9 @@ class Backup extends Command
      *
      * @param Database $database
      */
-    public function __construct(Database $database, Storage $storage)
+    public function __construct()
     {
         parent::__construct();
-
-        $this->storage = $storage;
-        $this->database = $database;
-
-        $this->database->setStorageFolder($this->storage->getStorageFolder());
     }
 
     /**
@@ -59,18 +55,14 @@ class Backup extends Command
         $this->line('Starting back-up procedure.');
         $startTime = microtime(true);
 
-        if (false === $this->database->isDatabaseSupported()) {
-            $this->error(sprintf('The current selected %s is not supported for the back-up procedure.', $this->database->getRealDatabase()->getDatabaseIdentifier()));
-            return 1;
-        }
+        $this->database->setBackupFilename($this->storage->generateBackupFilename($this->database->getRealDatabase()->getDatabaseIdentifier(), $this->database->getRealDatabase()->getFileExtension()));
 
         // Run the back-up
-        if (false === $this->database->getRealDatabase()->backup()) {
+        if (false === $this->database->getRealDatabase()->backup($this->database->getBackupFilename())) {
             $this->error('Error while performing back-up. Please find the error log for further details.');
 
             return 1;
         }
-
 
         if (false === $this->createArchiveFile()) {
             $this->error('Error while creating the archive file. Please find the error log for further details.');
@@ -93,9 +85,5 @@ class Backup extends Command
 
         Log::debug('Finished creating an archive file.');
         return true;
-    }
-
-    protected function generateBackupFilename()
-    {
     }
 }

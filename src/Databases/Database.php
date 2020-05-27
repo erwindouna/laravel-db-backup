@@ -38,11 +38,10 @@ class Database
         $this->realDatabase = Config::get('database.connections.' . $this->database);
         $this->processHandler = new ProcessHandler();
 
-        // Check if the current database driver is supported
         $this->buildDatabaseClass();
     }
 
-    protected function buildDatabaseClass(): void
+    public function buildDatabaseClass(): void
     {
         switch ($this->realDatabase['driver']) {
             case 'mysql':
@@ -73,6 +72,11 @@ class Database
     public function getRealDatabase(): object
     {
         return $this->realDatabase;
+    }
+
+    public function setBackupFilename(string $backupFilename): void
+    {
+        $this->backupFilename = $backupFilename;
     }
 
     /**
@@ -110,8 +114,6 @@ class Database
             $database['port'],
             $this->processHandler
         );
-
-        $this->generateBackupFilename($this->database->getDatabaseIdentifier(), $this->database->getFileExtension());
 
         return $this->database;
     }

@@ -4,7 +4,7 @@ namespace EDouna\LaravelDBBackup\Databases;
 
 interface DatabaseInterface
 {
-    public function backup();
+    public function backup(string $backupFile);
 
     public function restore(string $backupFile);
 

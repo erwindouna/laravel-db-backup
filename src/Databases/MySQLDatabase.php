@@ -5,7 +5,7 @@ namespace EDouna\LaravelDBBackup\Databases;
 use EDouna\LaravelDBBackup\ProcessHandler;
 use Illuminate\Support\Facades\Log;
 
-class MySQLDatabase extends Database implements DatabaseInterface
+class MySQLDatabase implements DatabaseInterface
 {
     protected $database;
     protected $user;
@@ -48,11 +48,11 @@ class MySQLDatabase extends Database implements DatabaseInterface
      *
      * @return bool
      */
-    public function backup(): bool
+    public function backup(string $backupFilename): bool
     {
         Log::debug('Start creating MySQL dump file.');
-        $backupFilename = parent::generateBackupFilename($this->getDatabaseIdentifier(), $this->getFileExtension());
         $command = sprintf('mysqldump %s --skip-comments %s > %s', $this->getCredentials(), $this->database, $backupFilename);
+        dd($command);
 
         if (false === $this->processHandler->run($command)) {
             return false;

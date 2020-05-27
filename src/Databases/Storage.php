@@ -18,7 +18,7 @@ class Storage
         $this->storagePath = $this->sanitizeStoragePath();
 
         // Always check if the back-up folder is present
-        $this->initializeStorageFolder();
+        //$this->initializeStorageFolder();
     }
 
     /**
@@ -40,7 +40,7 @@ class Storage
      * @throws CannotCreateStorageFolderException
      *
      */
-    protected function initializeStorageFolder(): bool
+    public function initializeStorageFolder(): bool
     {
         Log::debug(sprintf('Checking if storage path exists at %s', $this->storagePath));
         if (false === File::isDirectory($this->storagePath)) {
