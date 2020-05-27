@@ -38,7 +38,7 @@ class MySQLDatabaseTest extends TestCase
     {
         $this->processHandlerMock->method('run')->willReturn(true);
 
-        $this->assertTrue($this->database->backup());
+        $this->assertTrue($this->database->backup($this->testBackupFile));
     }
 
     /**
@@ -48,7 +48,7 @@ class MySQLDatabaseTest extends TestCase
     {
         $this->processHandlerMock->method('run')->willReturn(false);
 
-        $this->assertFalse($this->database->backup());
+        $this->assertFalse($this->database->backup($this->testBackupFile));
     }
 
     /**

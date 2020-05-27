@@ -80,18 +80,6 @@ class Database
     }
 
     /**
-     * Used to generically generate files names in one class
-     *
-     * @param string $databaseIdentifier
-     * @param string $databaseFileExtension
-     * @return string
-     */
-    public function generateBackupFilename(string $databaseIdentifier, string $databaseFileExtension): string
-    {
-        return $this->backupFilename = $this->storageFolder . $databaseIdentifier . '-' . time() . '.' . $databaseFileExtension;
-    }
-
-    /**
      * @return string
      */
     public function getBackupFilename(): string
