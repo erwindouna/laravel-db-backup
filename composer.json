@@ -13,7 +13,7 @@
     },
     "require-dev": {
         "orchestra/testbench": "^8.0.0@dev",
-        "phpunit/phpunit": "^9.2@dev",
+        "phpunit/phpunit": "^10.0.0@dev",
         "mockery/mockery": "dev-master"
     },
     "autoload": {
